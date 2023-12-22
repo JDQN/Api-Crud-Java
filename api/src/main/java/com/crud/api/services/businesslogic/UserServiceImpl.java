@@ -1,12 +1,14 @@
 package com.crud.api.services.businesslogic;
 
 
+import com.crud.api.exception.UserNotFoundException;
 import com.crud.api.persistence.entities.UserEntity;
 import com.crud.api.persistence.repositories.UserRepository;
 import com.crud.api.services.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -19,14 +21,17 @@ public class UserServiceImpl implements IUserService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
-	@Autowired
 	UserRepository userRepository;
+
+	public UserServiceImpl() {
+		super();
+	}
 
 	@Override
 	public UserEntity createUser(UserEntity user) {
 		try {
 			return userRepository.save(user);
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			LOGGER.error("Error while creating user: {}", e.getMessage());
 			throw new RuntimeException("Error creating user");
 		}
@@ -37,7 +42,7 @@ public class UserServiceImpl implements IUserService {
 	public List<UserEntity> getAllUsers() {
 		try {
 			return userRepository.findAll();
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			LOGGER.error("Error while fetching all users: {}", e.getMessage());
 			throw new RuntimeException("Error fetching users");
 		}
@@ -48,7 +53,7 @@ public class UserServiceImpl implements IUserService {
 	public Optional<UserEntity> getUserById(Long userId) {
 		try {
 			return userRepository.findById(userId);
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			LOGGER.error("Error while fetching user by ID: {}", e.getMessage());
 			throw new RuntimeException("Error fetching user by ID");
 		}
@@ -69,8 +74,8 @@ public class UserServiceImpl implements IUserService {
 
 				return userRepository.save(existingUser);
 			}
-			throw new RuntimeException("User not found");
-		} catch (Exception e) {
+			throw new UserNotFoundException("User not found");
+		} catch (DataAccessException e) {
 			LOGGER.error("Error while updating user: {}", e.getMessage());
 			throw new RuntimeException("Error updating user");
 		}
@@ -84,9 +89,11 @@ public class UserServiceImpl implements IUserService {
 			response.put("message", "User deleted succesfully!");
 			userRepository.deleteById(userId);
 			return response;
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			LOGGER.error("Error while deleting user: {}", e.getMessage());
 			throw new RuntimeException("Error deleting user");
 		}
 	}
+
+
 }

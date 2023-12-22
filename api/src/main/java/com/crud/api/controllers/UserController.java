@@ -5,6 +5,7 @@ import com.crud.api.persistence.entities.UserEntity;
 import com.crud.api.services.IUserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,8 +24,6 @@ public class UserController {
 
 	@Autowired
 	IUserService userService;
-
-
 
 
 	@PostMapping("/create")
@@ -55,7 +54,7 @@ public class UserController {
 			successResponse.put("type", "SUCCESS");
 
 			return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -66,7 +65,7 @@ public class UserController {
 		try {
 			List<UserEntity> users = userService.getAllUsers();
 			return new ResponseEntity<>(users, HttpStatus.OK);
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -77,7 +76,7 @@ public class UserController {
 		try {
 			Optional<UserEntity> user = userService.getUserById(userId);
 			return user.map(value -> ResponseEntity.ok().body(value)).orElseGet(() -> ResponseEntity.notFound().build());
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -91,7 +90,7 @@ public class UserController {
 				return new ResponseEntity<>(updatedUser, HttpStatus.OK);
 			}
 			return ResponseEntity.notFound().build();
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -102,7 +101,7 @@ public class UserController {
 		try {
 			HashMap<String, String> response = userService.deleteUser(userId);
 			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (Exception e) {
+		} catch (DataAccessException e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
